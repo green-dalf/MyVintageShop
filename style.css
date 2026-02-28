@@ -1,0 +1,115 @@
+:root {
+    --light-green: #dcedc8;
+    --cream: #fff9e6;
+    --white: #ffffff;
+    --dark: #333;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+nav {
+    background-color: var(--light-green);
+    padding: 15px 2%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+nav ul { display: flex; list-style: none; }
+nav ul li a {
+    text-decoration: none;
+    color: var(--dark);
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+/* მაუსის მიტანის ეფექტი */
+nav ul li a:hover {
+    background: var(--cream);
+    border-radius: 5px;
+    color: #558b2f;
+}
+
+header {
+    height: 40vh;
+    background: var(--cream);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.intro-grid {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 50px;
+    flex-wrap: wrap;
+}
+
+.intro-card {
+    cursor: pointer;
+    width: 300px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.intro-card img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid transparent;
+}
+
+.intro-card:hover img {
+    border-color: var(--light-green);
+    transform: scale(1.02);
+}
+
+.product-page {
+    padding: 50px 5%;
+    text-align: center;
+    min-height: 60vh;
+}
+
+.products-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.card {
+    border: 1px solid var(--light-green);
+    padding: 15px;
+    width: 280px;
+    border-radius: 10px;
+}
+
+.card img { width: 100%; height: 350px; object-fit: cover; border-radius: 5px; }
+
+.back-btn {
+    margin-top: 40px;
+    padding: 10px 30px;
+    background: var(--dark);
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/* კალათის სტილი */
+.cart-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; }
+.cart-content { background: white; width: 350px; margin: 10% auto; padding: 20px; border-radius: 10px; position: relative; }
+.close { position: absolute; right: 15px; top: 10px; font-size: 24px; cursor: pointer; }
+
+footer { background: var(--dark); color: white; padding: 40px; text-align: center; margin-top: 50px; }
+.phone-link { color: var(--light-green); text-decoration: none; font-size: 1.2rem; }
