@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vintage & Gothic Boutique</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav>
+        <div class="logo">Maternity & Vintage</div>
+        <ul>
+            <li><a href="#" onclick="showSection('home')">მთავარი</a></li>
+            <li><a href="#" onclick="showSection('maternity')">საორსულო</a></li>
+            <li><a href="#" onclick="showSection('vintage')">ვინტაჟი</a></li>
+            <li><a href="#" onclick="showSection('gothic')">გოთიკური</a></li>
+            <li><a href="#" onclick="showSection('accessories')">აქსესუარები</a></li>
+            <li><a href="#" onclick="showSection('bags')">ჩანთები</a></li>
+            <li><a href="#" onclick="showSection('shoes')">ფეხსაცმელი</a></li>
+        </ul>
+        <div class="cart-icon" onclick="toggleCart()">
+            🛒 კალათა (<span id="cart-count">0</span>)
+        </div>
+    </nav>
+
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-content">
+            <span class="close" onclick="toggleCart()">&times;</span>
+            <h2>შენი კალათა</h2>
+            <ul id="cart-items"></ul>
+            <hr>
+            <p><strong>ჯამი: <span id="total-price">0</span> GEL</strong></p>
+            <button class="checkout-btn">შეკვეთა</button>
+        </div>
+    </div>
+
+    <main id="main-content">
+        <header id="home-header">
+            <h1>მოგესალმებით ჩვენს ბუტიკში</h1>
+            <p>საუკეთესო ლუქები **ყიდვისა** და **ქირავებისთვის**</p>
+        </header>
+
+        <section class="intro-grid">
+            <div class="intro-card" onclick="showSection('vintage')">
+                <img src="https://i.pinimg.com/736x/00/6a/11/006a114e3ee2bf2651944452015e6c99.jpg">
+                <h3>ვინტაჟური კოლექცია</h3>
+            </div>
+            <div class="intro-card" onclick="showSection('gothic')">
+                <img src="https://m.media-amazon.com/images/I/71RpRx3EZ-L._AC_UY1000_.jpg">
+                <h3>გოთიკური სტილი</h3>
+            </div>
+            <div class="intro-card" onclick="showSection('maternity')">
+                <img src="https://www.pinkblushmaternity.com/cdn/shop/files/15877_10.jpg?v=1759467627">
+                <h3>საორსულო ხაზი</h3>
+            </div>
+        </section>
+        
+        <h2 style="text-align:center; margin-top:40px;">ახალი დამატებული ნივთები</h2>
+        <div id="firebase-products" class="products-wrapper">
+            </div>
+    </main>
+
+    <section id="product-display" class="product-page" style="display:none;">
+        <h2 id="category-title">კატეგორია</h2>
+        <div id="product-list" class="products-wrapper"></div>
+        <button class="back-btn" onclick="showSection('home')">უკან დაბრუნება</button>
+    </section>
+
+    <footer id="contact">
+        <h3>საკონტაქტო ინფორმაცია</h3>
+        <p>დაგვიკავშირდით: <a href="tel:595245376" class="phone-link">595 24 53 76</a></p>
+    </footer>
+
+    <script src="script.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAEAimg8crH0LL9Jquve6c18JhIh7nX3dM",
+            authDomain: "myvintageshop-3aaad.firebaseapp.com",
+            projectId: "myvintageshop-3aaad",
+            storageBucket: "myvintageshop-3aaad.firebasestorage.app",
+            messagingSenderId: "246330348239",
+            appId: "1:246330348239:web:59bf185c32e5ee4d3c9dba"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ვირჩევთ ადგილს, სადაც ნივთები უნდა გამოჩნდეს
+        const firebaseGallery = document.getElementById('firebase-products');
+
+        const q = query(collection(db, "items"), orderBy("time", "desc"));
+        
+        onSnapshot(q, (snapshot) => {
+            firebaseGallery.innerHTML = ''; 
+            snapshot.forEach(doc => {
+                const item = doc.data();
+                
+                // ვიყენებთ შენს .product-card სტილს (დავამატე კლასი, რომ სტილს მოერგოს)
+                firebaseGallery.innerHTML += `
+                    <div class="product-card">
+                        <img src="${item.img}" style="width:100%; border-radius:10px;">
+                        <h3>${item.name}</h3>
+                        <p>ახალი კოლექცია</p>
+                        <button class="add-to-cart-btn" onclick="addToCart('${item.name}', 0)">კალათაში დამატება</button>
+                    </div>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>
