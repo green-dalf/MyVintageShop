@@ -57,8 +57,7 @@
         </section>
         
         <h2 style="text-align:center; margin-top:40px;">ახალი დამატებული ნივთები</h2>
-        <div id="firebase-products" class="products-wrapper">
-            </div>
+        <div id="firebase-products" class="products-wrapper"></div>
     </main>
 
     <section id="product-display" class="product-page" style="display:none;">
@@ -90,26 +89,48 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // ვირჩევთ ადგილს, სადაც ნივთები უნდა გამოჩნდეს
+        // დიაგნოსტიკა 1: ვამოწმებთ კონტეინერს
         const firebaseGallery = document.getElementById('firebase-products');
+        if (!firebaseGallery) {
+            console.error("❌ შეცდომა: HTML-ში ვერ მოიძებნა ელემენტი ID-ით 'firebase-products'");
+        } else {
+            console.log("✅ HTML კონტეინერი მზად არის.");
+        }
 
         const q = query(collection(db, "items"), orderBy("time", "desc"));
         
+        // დიაგნოსტიკა 2: ვუსმენთ ბაზას
         onSnapshot(q, (snapshot) => {
-            firebaseGallery.innerHTML = ''; 
-            snapshot.forEach(doc => {
-                const item = doc.data();
-                
-                // ვიყენებთ შენს .product-card სტილს (დავამატე კლასი, რომ სტილს მოერგოს)
-                firebaseGallery.innerHTML += `
-                    <div class="product-card">
-                        <img src="${item.img}" style="width:100%; border-radius:10px;">
-                        <h3>${item.name}</h3>
-                        <p>ახალი კოლექცია</p>
-                        <button class="add-to-cart-btn" onclick="addToCart('${item.name}', 0)">კალათაში დამატება</button>
-                    </div>
-                `;
-            });
+            console.log("📡 Firebase-თან კავშირი აქტიურია.");
+            console.log("📦 ბაზაში ნაპოვნია " + snapshot.size + " ნივთი.");
+
+            if (firebaseGallery) {
+                firebaseGallery.innerHTML = ''; 
+
+                if (snapshot.empty) {
+                    firebaseGallery.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:gray;">ბაზა ცარიელია. დაამატეთ ნივთები ადმინ პანელიდან.</p>';
+                }
+
+                snapshot.forEach(doc => {
+                    const item = doc.data();
+                    
+                    // ვქმნით ბარათს
+                    firebaseGallery.innerHTML += `
+                        <div class="product-card">
+                            <img src="${item.img}" style="width:100%; border-radius:10px; height:250px; object-fit:cover;">
+                            <h3>${item.name}</h3>
+                            <p style="color: #088178; font-weight: bold;">${item.price} GEL</p>
+                            <button class="add-to-cart-btn" onclick="addToCart('${item.name}', ${item.price})">კალათაში დამატება</button>
+                        </div>
+                    `;
+                });
+            }
+        }, (error) => {
+            // დიაგნოსტიკა 3: შეცდომების გამოტანა
+            console.error("❌ Firebase შეცდომა:", error.message);
+            if (error.message.includes("permissions")) {
+                alert("შეცდომა: ბაზაზე წვდომა აკრძალულია! შეამოწმე Firestore Rules.");
+            }
         });
     </script>
 </body>

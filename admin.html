@@ -2,48 +2,53 @@
 <html lang="ka">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Vintage Shop - Admin</title>
+    <title>ადმინ პანელი</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        input, button { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { background: #28a745; color: white; border: none; cursor: pointer; }
-        #adminPanel { display: none; } /* თავიდან დამალულია */
+        body { font-family: sans-serif; background: #2c3e50; color: white; padding: 20px; display: flex; justify-content: center; }
+        .admin-box { background: #ecf0f1; color: #333; padding: 20px; border-radius: 10px; width: 350px; }
+        input, select, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { background: #27ae60; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .logout-btn { background: #e74c3c; }
         .hidden { display: none; }
+        #status { color: red; font-size: 12px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="admin-box">
     <div id="authSection">
-        <h2>შესვლა / რეგისტრაცია</h2>
-        <input type="email" id="email" placeholder="ელ-ფოსტა">
+        <h2 style="text-align: center; color: #2c3e50;">ადმინ პანელი</h2>
+        <input type="email" id="email" placeholder="იმეილი">
         <input type="password" id="password" placeholder="პაროლი">
         <button id="loginBtn">შესვლა</button>
-        <button id="signupBtn" style="background: #007bff;">რეგისტრაცია</button>
+        <button id="signupBtn" style="background: #3498db;">რეგისტრაცია</button>
+        <p id="status"></p>
     </div>
 
-    <div id="adminPanel">
-        <h2>ადმინ პანელი</h2>
-        <p id="userEmail"></p>
-        <hr>
-        <h3>პროდუქტის დამატება</h3>
-        <input type="text" id="prodName" placeholder="პროდუქტის სახელი">
+    <div id="adminPanel" class="hidden">
+        <h3 style="color: #2c3e50;">პროდუქტის დამატება</h3>
+        <input type="text" id="prodName" placeholder="სახელი">
+        <input type="number" id="prodPrice" placeholder="ფასი">
+        <select id="prodCategory">
+            <option value="vintage">ვინტაჟი</option>
+            <option value="gothic">გოთიკური</option>
+            <option value="maternity">საორსულო</option>
+            <option value="accessories">აქსესუარები</option>
+            <option value="bags">ჩანთები</option>
+            <option value="shoes">ფეხსაცმელი</option>
+        </select>
         <input type="file" id="prodImage">
-        <button id="uploadBtn">ატვირთვა საიტზე</button>
-        <button id="logoutBtn" style="background: #dc3545;">გამოსვლა</button>
+        <button id="uploadBtn">ატვირთვა</button>
+        <button id="logoutBtn" class="logout-btn">გამოსვლა</button>
     </div>
 </div>
 
 <script type="module">
-    // იმპორტირება Firebase-ის მოდულების
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-    // შენი კონფიგურაცია
     const firebaseConfig = {
         apiKey: "AIzaSyAEAimg8crH0LL9Jquve6c18JhIh7nX3dM",
         authDomain: "myvintageshop-3aaad.firebaseapp.com",
@@ -53,70 +58,58 @@
         appId: "1:246330348239:web:59bf185c32e5ee4d3c9dba"
     };
 
-    // ინიციალიზაცია
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    // --- ავტორიზაციის ლოგიკა ---
-
-    // რეგისტრაცია
+    // რეგისტრაცია (თუ ვერ შედიხარ, ჯერ ეს გამოიყენე ერთხელ)
     document.getElementById('signupBtn').onclick = () => {
-        const email = document.getElementById('email').value;
-        const pass = document.getElementById('password').value;
-        createUserWithEmailAndPassword(auth, email, pass).catch(err => alert(err.message));
+        createUserWithEmailAndPassword(auth, email.value, password.value)
+            .catch(err => document.getElementById('status').innerText = err.message);
     };
 
     // შესვლა
     document.getElementById('loginBtn').onclick = () => {
-        const email = document.getElementById('email').value;
-        const pass = document.getElementById('password').value;
-        signInWithEmailAndPassword(auth, email, pass).catch(err => alert(err.message));
+        signInWithEmailAndPassword(auth, email.value, password.value)
+            .catch(err => document.getElementById('status').innerText = "შეცდომა: მონაცემები არასწორია");
     };
 
-    // გამოსვლა
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
 
-    // სტატუსის შემოწმება (შესულია თუ არა მომხმარებელი)
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, user => {
         if (user) {
             document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('adminPanel').style.display = 'block';
-            document.getElementById('userEmail').innerText = "შესული ხართ როგორც: " + user.email;
+            document.getElementById('adminPanel').classList.remove('hidden');
         } else {
             document.getElementById('authSection').classList.remove('hidden');
-            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('adminPanel').classList.add('hidden');
         }
     });
 
-    // --- ფაილის ატვირთვის ლოგიკა ---
     document.getElementById('uploadBtn').onclick = async () => {
-        const name = document.getElementById('prodName').value;
-        const file = document.getElementById('prodImage').files[0];
-
-        if(!file || !name) return alert("შეავსეთ ყველა ველი!");
+        const file = prodImage.files[0];
+        if(!file || !prodName.value || !prodPrice.value) return alert("შეავსე ყველაფერი!");
 
         try {
-            // 1. სურათის ატვირთვა Storage-ში
-            const storageRef = ref(storage, 'products/' + file.name);
-            const snapshot = await uploadBytes(storageRef, file);
-            const url = await getDownloadURL(snapshot.ref);
+            const sRef = ref(storage, `products/${Date.now()}_${file.name}`);
+            await uploadBytes(sRef, file);
+            const url = await getDownloadURL(sRef);
 
-            // 2. ინფორმაციის შენახვა Firestore-ში
             await addDoc(collection(db, "items"), {
-                productName: name,
-                imageUrl: url,
-                timestamp: new Date()
+                name: prodName.value,
+                price: Number(prodPrice.value),
+                category: prodCategory.value,
+                img: url,
+                time: new Date()
             });
 
             alert("წარმატებით აიტვირთა!");
-        } catch (error) {
-            console.error(error);
-            alert("შეცდომა ატვირთვისას: " + error.message);
+            location.reload();
+        } catch (e) {
+            alert("შეცდომა: " + e.message);
         }
     };
 </script>
-
 </body>
 </html>
